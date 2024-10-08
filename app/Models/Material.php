@@ -8,4 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class Material extends Model
 {
     use HasFactory;
+
+    public function course()
+    {
+        return $this->belongsTo(Course::class);
+    }
+
+    public function lectureMaterials()
+    {
+        return $this->hasMany(LectureMaterial::class);
+    }
+
 }

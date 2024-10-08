@@ -29,6 +29,9 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Has
      *
      * @var array<int, string>
      */
+    protected $primaryKey = 'id';
+    // public $incrementing = false;
+    // protected $keyType = 'string';
     protected $fillable = [
         'username',
         'email',
@@ -92,5 +95,64 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Has
         $this->addMediaConversion('thumb')
             ->fit(Fit::Contain, 300, 300)
             ->nonQueued();
+    }
+    // public function typeOfUser()
+    // {
+    //     return $this->belongsTo(TypeOfUser::class, 'user_type');
+    // }
+
+    // public function coursesCreated()
+    // {
+    //     return $this->hasMany(CourseCreator::class);
+    // }
+
+    public function enrollments()
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    public function courseRatings()
+    {
+        return $this->hasMany(CourseRating::class);
+    }
+
+    public function studentGrading()
+    {
+        return $this->hasMany(StudentGrading::class);
+    }
+
+    public function assignmentSubmissions()
+    {
+        return $this->hasMany(AssignmentSubmission::class);
+    }
+
+    // public function permissions()
+    // {
+    //     return $this->hasMany(Permission::class);
+    // }
+
+    public function teacherCourses()
+    {
+        return $this->hasMany(TeacherRelatedToCourse::class, 'user_id_teacher');
+    }
+
+    public function taCourses()
+    {
+        return $this->hasMany(TARelatedToCourse::class, 'user_id_ta');
+    }
+
+    public function graderCourses()
+    {
+        return $this->hasMany(GraderRelatedToCourse::class, 'user_id_grader');
+    }
+
+    public function discussionBoardForLectures()
+    {
+        return $this->hasMany(DiscussionBoardForLecture::class);
+    }
+
+    public function discussionBoardForAssignments()
+    {
+        return $this->hasMany(DiscussionBoardForAssignment::class);
     }
 }

@@ -2,28 +2,29 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Pages\Auth\EmailVerification;
-use App\Filament\Pages\Auth\Login;
-use App\Filament\Pages\Auth\RequestPasswordReset;
-use App\Filament\Resources\MenuResource;
-use App\Livewire\MyProfileExtended;
-use App\Settings\GeneralSettings;
-use Filament\Http\Middleware\Authenticate;
-use Filament\Http\Middleware\DisableBladeIconComponents;
-use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Navigation;
 use Filament\Pages;
 use Filament\Panel;
-use Filament\PanelProvider;
 use Filament\Widgets;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Filament\Navigation;
+use Filament\PanelProvider;
+use App\Settings\GeneralSettings;
+use App\Filament\Pages\Auth\Login;
+use App\Livewire\MyProfileExtended;
+use Illuminate\Support\Facades\Storage;
+use App\Filament\Resources\MenuResource;
+use Filament\Http\Middleware\Authenticate;
+use Awcodes\FilamentGravatar\GravatarPlugin;
+use App\Filament\Pages\Auth\EmailVerification;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use App\Filament\Pages\Auth\RequestPasswordReset;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
-use Illuminate\Session\Middleware\StartSession;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\Http\Middleware\DisableBladeIconComponents;
+use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -36,11 +37,11 @@ class AdminPanelProvider extends PanelProvider
             ->login(Login::class)
             ->passwordReset(RequestPasswordReset::class)
             ->emailVerification(EmailVerification::class)
-            ->favicon(fn (GeneralSettings $settings) => Storage::url($settings->site_favicon))
-            ->brandName(fn (GeneralSettings $settings) => $settings->brand_name)
-            ->brandLogo(fn (GeneralSettings $settings) => Storage::url($settings->brand_logo))
-            ->brandLogoHeight(fn (GeneralSettings $settings) => $settings->brand_logoHeight)
-            ->colors(fn (GeneralSettings $settings) => $settings->site_theme)
+            ->favicon(fn(GeneralSettings $settings) => Storage::url($settings->site_favicon))
+            ->brandName(fn(GeneralSettings $settings) => $settings->brand_name)
+            ->brandLogo(fn(GeneralSettings $settings) => Storage::url($settings->brand_logo))
+            ->brandLogoHeight(fn(GeneralSettings $settings) => $settings->brand_logoHeight)
+            ->colors(fn(GeneralSettings $settings) => $settings->site_theme)
             ->databaseNotifications()->databaseNotificationsPolling('30s')
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->sidebarCollapsibleOnDesktop()
@@ -61,7 +62,7 @@ class AdminPanelProvider extends PanelProvider
             ->navigationItems([
                 Navigation\NavigationItem::make('Log Viewer') // !! To-Do: lang
                     ->visible(fn(): bool => auth()->user()->can('access_log_viewer'))
-                    ->url(config('app.url').'/'.config('log-viewer.route_path'), shouldOpenInNewTab: true)
+                    ->url(config('app.url') . '/' . config('log-viewer.route_path'), shouldOpenInNewTab: true)
                     ->icon('fluentui-document-bullet-list-multiple-20-o')
                     ->group(__('menu.nav_group.activities'))
                     ->sort(99),
@@ -94,6 +95,11 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->plugins([
+                GravatarPlugin::make()
+                    ->default('robohash')
+                    ->size(200)
+                    ->rating('pg')
+                ,
                 \TomatoPHP\FilamentMediaManager\FilamentMediaManagerPlugin::make()
                     ->allowSubFolders(),
                 \BezhanSalleh\FilamentExceptions\FilamentExceptionsPlugin::make(),
